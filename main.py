@@ -14,7 +14,5 @@ arXiv:2009.10751 (2020)
 
 import PeresMermin as pm
 
-square = pm.PeresMermin()
-real_support = square.real.support
-
-
+ontology = pm.PeresMermin()
+ontic = ontology.ontic

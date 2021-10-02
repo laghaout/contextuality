@@ -19,39 +19,55 @@ class PeresMermin(ont.Ontology):
         
         super().__init__(side=side, **kwargs)
     
-    def __call__(self):
+    def define_ontic(self):
         
-        side = self.side
-        
-        return np.array([self.bin2square(k, side) for k in range(2**side**2)])
+        return np.array([self.bin2square(k, self.side) 
+                         for k in range(2**self.side**2)]).T
 
     @staticmethod
     def bin2square(k, side):
+        """
+        Generate a array of binary characters that corresponds to the binary 
+        encoding of integer ``k``.
+
+        Parameters
+        ----------
+        k : TYPE
+            DESCRIPTION.
+        side : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        square : TYPE
+            DESCRIPTION.
+
+        """
         
-        k = bin(k)[2:]
-        k = '0'*(side**2 - len(k)) + k
-        square = np.array([(-1)**int(j) for j in k]).reshape(side, side)
+        k = bin(k)[2:]  # Convert ``k`` to its binary representation string.
+        k = '0'*(side**2 - len(k)) + k  # Pad with '0's.
+        square = np.array([(-1)**int(j) for j in k]).reshape(9,1)
         
         return square
     
-    def logic(self):
+    # def logic(self):
         
-        rows = self.ontic.prod(axis=1)
-        cols = self.ontic.prod(axis=2)
-        derived = pd.DataFrame(
-            np.hstack((rows, cols)), 
-            columns=[f'r{k}' for k in range(1, self.side)] + \
-                [f'c{k}' for k in range(1, self.side)])
+    #     rows = self.ontic.prod(axis=1)
+    #     cols = self.ontic.prod(axis=2)
+    #     derived = pd.DataFrame(
+    #         np.hstack((rows, cols)), 
+    #         columns=[f'r{k}' for k in range(1, self.side)] + \
+    #             [f'c{k}' for k in range(1, self.side)])
         
-        return derived
+    #     return derived
 
-    def hulls(self):
+    # def hulls(self):
 
-        real = SimpleNamespace(**dict(
-            support=self.derived.drop_duplicates(inplace=False), 
-            hull=None))
-        unreal = SimpleNamespace(**dict(
-            support=None, 
-            hull=None))
+    #     real = SimpleNamespace(**dict(
+    #         support=self.derived.drop_duplicates(inplace=False), 
+    #         hull=None))
+    #     unreal = SimpleNamespace(**dict(
+    #         support=None, 
+    #         hull=None))
         
-        return real, unreal
+    #     return real, unreal

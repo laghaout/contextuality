@@ -12,45 +12,69 @@ class Ontology:
     
     def __init__(self, **kwargs):
         
-        
         # Set the kwargs as attributes.
         [self.__setattr__(k, v) for k, v in kwargs.items()]
         
-        # Define the base ontic states.
-        self.ontic = self()
+        # Define the base ontic states (i.e., the attributes that are assumed 
+        # to be real).
+        self.ontic = self.define_ontic()
         
-        # Define the logic, i.e., the derived measurements.
-        self.derived = self.logic()
+        # Determine the derived states (i.e., the transformed or measured 
+        # attributes that follow from the base ontic states).
+        self.derived = self.compute_derived()
         
-        # Determine the hulls.
-        (self.real, self.unreal) = self.hulls()
-       
-    def logic(self):
+        # Determine the hulls that result from the derived states.
+        self.hulls = self.compute_hulls()
+
+    def define_ontic(self):
         """
-        Determine the logical operations and the reduced space.
+        Define the base ontic states.
 
         Returns
         -------
-        None.
+        ontic : np.array 
+            Array of dimension `N·K` where `N` is the number of attributes and 
+            `K` the number of such combinations.
         """    
         
-        return None
+        ontic = None
         
-    def hulls(self):
+        return ontic
+ 
+    def compute_derived(self):
+        """
+        Define the logical operations that (potentially) reduced space the 
+        "real of possibilities". These operations, which typically correspond 
+        to measurements, produce a set of derived states.
+
+        Returns
+        -------
+        derived : np.array
+            Array of dimension `N'·K'` where `N'` is the number of derived 
+            attributes (typically one derived attribute per context) and `K'` 
+            is the number of combinations of such attributes.
+        """        
+        derived = None
+        
+        return derived
+        
+    def compute_hulls(self):
         """
         Determine the real and unreal hulls.
 
         Returns
         -------
-        None.
+        hulls : SimpleNamespace
+            Real and unreal hulls together with their support vectors.
         """
         
         real = SimpleNamespace(**dict(support=None, hull=None))
         unreal = SimpleNamespace(**dict(support=None, hull=None))
+        hulls = SimpleNamespace(**dict(real=real, unreal=unreal))
         
-        return (real, unreal)
+        return hulls
         
-    def distance(self, mu, hull=True):
+    def distance(self, mu, hull='real'):
         """
         Compute the distance of various points form the hulls.
 
@@ -59,14 +83,15 @@ class Ontology:
         mu : np.array
             Measurement vector.
         hull : bool, optional
-            Distance from the real (unreal) hull if True (False). The default 
-            is True.
+            Distance from the hull ``hull``
 
         Returns
         -------
         D : float
-            Distance from the hull.
-
+            Distance from the hull. This is positive if outside the hull and
+            negative if inside it.
         """
+        
+        assert hull in self.hulls.__dict__.keys()
         
         return None
