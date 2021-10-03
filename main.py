@@ -16,3 +16,7 @@ import PeresMermin as pm
 
 ontology = pm.PeresMermin()
 ontic = ontology.ontic
+real_support = ontology.hulls.real.support
+unreal_support = ontology.hulls.unreal.support
+
+# %%

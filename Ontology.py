@@ -68,7 +68,7 @@ class Ontology:
             Real and unreal hulls together with their support vectors.
         """
         
-        real = SimpleNamespace(**dict(support=None, hull=None))
+        real = SimpleNamespace(**dict(support=self.derived, hull=None))
         unreal = SimpleNamespace(**dict(support=None, hull=None))
         hulls = SimpleNamespace(**dict(real=real, unreal=unreal))
         
