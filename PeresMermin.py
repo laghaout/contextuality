@@ -8,6 +8,7 @@ Created on Sun Aug  1 14:29:08 2021
     
 import numpy as np
 import pandas as pd
+import scipy.spatial as sp
 
 import Ontology as ont
 
@@ -19,7 +20,7 @@ class PeresMermin(ont.Ontology):
     
     def define_ontic(self):
         
-        ontic = np.array([self.bin2square(k, self.side) 
+        ontic = np.array([self.bin2square(k, self.side**2) 
                           for k in range(2**self.side**2)]).T
                
         ontic = pd.DataFrame(
@@ -38,20 +39,23 @@ class PeresMermin(ont.Ontology):
 
         Parameters
         ----------
-        k : TYPE
-            DESCRIPTION.
-        side : TYPE
-            DESCRIPTION.
+        k : int
+            A natural number to be encoded into binaries where 0 is replaced by
+            -1.
+        side : int
+            Side of the square.
 
         Returns
         -------
-        square : TYPE
-            DESCRIPTION.
-
+        square : np.array
+            Flattened Peres-Mermin square.
         """
         
+        # TODO: Assert that the padding is consistent with ``k``.
+        assert True
+        
         k = bin(k)[2:]  # Convert ``k`` to its binary representation string.
-        k = '0'*(side**2 - len(k)) + k  # Pad with '0's.
+        k = '0'*(side - len(k)) + k  # Pad with '0's.
         square = np.array([(-1)**int(j) for j in k])
         
         return square
@@ -84,7 +88,18 @@ class PeresMermin(ont.Ontology):
 
         hulls = super().compute_hulls()   
         
+        # Compute the complementary set of integer indices.
         hulls.unreal.support = self.compute_complement(hulls.real.support)
+        
+        # Convert the integer indices to their binary representation.
+        hulls.unreal.support = pd.DataFrame(
+            np.array([self.bin2square(k, self.derived.shape[0]) 
+                      for k in hulls.unreal.support]).T, 
+            index=hulls.real.support.index,
+            columns=hulls.real.support.columns)
+        
+        hulls.real.hull = sp.Delaunay(hulls.real.support.values.T)
+        hulls.unreal.hull = sp.Delaunay(hulls.unreal.support.T)
         
         return hulls
 

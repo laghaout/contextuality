@@ -94,4 +94,9 @@ class Ontology:
         
         assert hull in self.hulls.__dict__.keys()
         
-        return None
+        if hull == 'real':        
+            distance = self.hulls.real.hull.find_simplex(mu)
+        elif hull == 'unreal':
+            distance = self.hulls.unreal.hull.find_simplex(mu)
+        
+        return distance
