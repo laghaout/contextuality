@@ -20,12 +20,19 @@ import numpy as np
 import PeresMermin as pm
 
 ontology = pm.PeresMermin()
+
+mu = dict(
+    R=dict(mu=np.array([1, 1, 1, 1, 1, 1])),
+    Q=dict(mu=np.array([1, 1, 1, 1, 1, -1])),
+    IBM=dict(
+        mu=np.array([0.939, 0.887, 0.833, 0.907, 0.917, -0.504]),
+        delta_mu=np.array([3.79, 5.09, 6.12, 4.64, 4.41, 9.55])*1e-3))
+
+# %% Save into variables
+
 ontic = ontology.ontic
 real_support = ontology.hulls.real.support
 unreal_support = ontology.hulls.unreal.support
+violation = ontology.violation(**mu['Q'])
 
-mu = dict(
-    R=np.array([1, 1, 1, 1, 1, .8]),
-    Q=np.array([1, 1, 1, 1, 1, -1]),
-    IBM=np.array([0.939, 0.887, 0.833, 0.907, 0.917, -0.504]))
-print(ontology.distance(mu['R']))
+print("Distance from the real hull:", violation.D)

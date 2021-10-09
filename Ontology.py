@@ -6,6 +6,10 @@ Created on Sun Aug  1 14:29:08 2021
 @author: Amine Laghaout
 """
 
+import numpy as np
+
+from scipy.optimize import minimize
+
 from types import SimpleNamespace
 
 class Ontology:
@@ -25,7 +29,14 @@ class Ontology:
         
         # Determine the hulls that result from the derived states.
         self.hulls = self.compute_hulls()
+        
+        self.validate()
+        
+    def validate(self):
 
+        assert (self.hulls.real.support.values.T == self.hulls.real.hull.points).all()
+        assert (self.hulls.unreal.support.values.T == self.hulls.unreal.hull.points).all()       
+        
     def define_ontic(self):
         """
         Define the base ontic states.
@@ -73,8 +84,29 @@ class Ontology:
         hulls = SimpleNamespace(**dict(real=real, unreal=unreal))
         
         return hulls
+    
+    @staticmethod
+    def distance(mu, support, p_pi):
         
-    def distance(self, mu, hull='real'):
+        D = mu - support.T @ p_pi
+        D = np.sqrt(np.dot(D, D))
+        
+        return D
+    
+    @staticmethod
+    def consistency_check(p, tol=1e-7):
+        """
+        Check that the probabilities are in [0, 1] and add up to unity.
+        """
+
+        check = [abs(p.sum() - 1) < tol]
+
+        for x in p:
+            check += [x <= 1 + tol and x >= 0 - tol]
+
+        return False not in check    
+   
+    def violation(self, mu, delta_mu=None, hull='real'):
         """
         Compute the distance of various points form the hulls.
 
@@ -82,21 +114,53 @@ class Ontology:
         ----------
         mu : np.array
             Measurement vector.
-        hull : bool, optional
-            Distance from the hull ``hull``
+        delta_mu : np.array, None
+            Sphere of uncertainty around mu
+        hull : str, optional
+            Hull from which the distance to ``mu`` is computed.
 
         Returns
         -------
         D : float
             Distance from the hull. This is positive if outside the hull and
             negative if inside it.
+        closest : np.array
+            Closest point on the ``hull`` to ``mu``. This is equal to ``mu`` if
+            ``mu`` is already on the ``hull``.
+        p_pi : np.array
+            Probability mass distribution of the support points of the ``hull``
+            associated with the closest point ``closest``.
+        stderrs : float
+            Number of standard errors from the mean of ``mu`` from the 
+            ``hull``.
         """
         
         assert hull in self.hulls.__dict__.keys()
         
-        if hull == 'real':        
-            distance = self.hulls.real.hull.find_simplex(mu)
-        elif hull == 'unreal':
-            distance = self.hulls.unreal.hull.find_simplex(mu)
+        if isinstance(hull, str):
+            hull = getattr(self.hulls, hull).hull
+        support = hull.points
+        # D = hull.find_simplex(mu)
+            
+        # TODO
+        closest = np.array([np.nan]*support.shape[1])
+        p_pi = np.random.rand(support.shape[0])
+        p_pi /= p_pi.sum()
+        stderrs = delta_mu  
+
+        closest = minimize(
+            lambda x: self.distance(mu, support, x), 
+            p_pi, 
+            # Sequential Least Squares Programming.
+            method='SLSQP', 
+            # The probabilities should be bound within [0, 1].
+            bounds=tuple([(0, 1)] * support.shape[0]), 
+            constraints=([{'type': 'eq', 'fun': lambda p: p.sum() - 1}]))
         
-        return distance
+        p_pi = closest.x
+        D = self.distance(mu, support, p_pi)
+        
+        assert self.consistency_check(p_pi)
+        
+        return SimpleNamespace(
+            **dict(D=D, closest=closest, p_pi=p_pi, stderrs=stderrs))

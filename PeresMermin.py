@@ -5,7 +5,7 @@ Created on Sun Aug  1 14:29:08 2021
 
 @author: Amine Laghaout
 """
-    
+
 import numpy as np
 import pandas as pd
 import scipy.spatial as sp
@@ -22,7 +22,7 @@ class PeresMermin(ont.Ontology):
         
         ontic = np.array([self.bin2square(k, self.side**2) 
                           for k in range(2**self.side**2)]).T
-               
+
         ontic = pd.DataFrame(
             ontic, 
             index=np.array([[f'a{r}{c}' for c in range(1, self.side+1)] 
@@ -86,19 +86,20 @@ class PeresMermin(ont.Ontology):
 
     def compute_hulls(self):
 
-        hulls = super().compute_hulls()   
+        hulls = super().compute_hulls()
         
         # Compute the complementary set of integer indices.
         hulls.unreal.support = self.compute_complement(hulls.real.support)
         
-        # Convert the integer indices to their binary representation.
+        # Convert the integer indices ofthe unreal hull to their binary 
+        # representation.
         hulls.unreal.support = pd.DataFrame(
             np.array([self.bin2square(k, self.derived.shape[0]) 
                       for k in hulls.unreal.support]).T, 
             index=hulls.real.support.index,
             columns=hulls.real.support.columns)
         
-        hulls.real.hull = sp.Delaunay(hulls.real.support.values.T)
+        hulls.real.hull = sp.Delaunay(hulls.real.support.T)
         hulls.unreal.hull = sp.Delaunay(hulls.unreal.support.T)
         
         return hulls
