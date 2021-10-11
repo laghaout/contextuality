@@ -7,9 +7,7 @@ Created on Sun Aug  1 14:29:08 2021
 """
 
 import numpy as np
-
 from scipy.optimize import minimize
-
 from types import SimpleNamespace
 
 class Ontology:
@@ -88,7 +86,7 @@ class Ontology:
     @staticmethod
     def distance(mu, support, p_pi):
         
-        D = mu - support.T @ p_pi
+        D = mu - np.dot(support, p_pi)
         D = np.sqrt(np.dot(D, D))
         
         return D
@@ -106,7 +104,7 @@ class Ontology:
 
         return False not in check    
    
-    def violation(self, mu, delta_mu=None, hull='real'):
+    def violation(self, mu, delta_mu=None, hull='real', method='SLSQP'):
         """
         Compute the distance of various points form the hulls.
 
@@ -130,7 +128,7 @@ class Ontology:
         p_pi : np.array
             Probability mass distribution of the support points of the ``hull``
             associated with the closest point ``closest``.
-        stderrs : float
+        stderr : float
             Number of standard errors from the mean of ``mu`` from the 
             ``hull``.
         """
@@ -140,27 +138,33 @@ class Ontology:
         if isinstance(hull, str):
             hull = getattr(self.hulls, hull).hull
         support = hull.points
-        # D = hull.find_simplex(mu)
             
         # TODO
         closest = np.array([np.nan]*support.shape[1])
         p_pi = np.random.rand(support.shape[0])
         p_pi /= p_pi.sum()
-        stderrs = delta_mu  
+        if delta_mu is not None:
+            stderr = np.sqrt(np.dot(delta_mu, delta_mu))
+        else:
+            stderr = np.nan
 
         closest = minimize(
-            lambda x: self.distance(mu, support, x), 
+            lambda x: self.distance(mu, support.T, x), 
             p_pi, 
-            # Sequential Least Squares Programming.
-            method='SLSQP', 
+            method=method, 
             # The probabilities should be bound within [0, 1].
             bounds=tuple([(0, 1)] * support.shape[0]), 
             constraints=([{'type': 'eq', 'fun': lambda p: p.sum() - 1}]))
         
         p_pi = closest.x
-        D = self.distance(mu, support, p_pi)
+        D = self.distance(mu, support.T, p_pi)       
+        closest = np.dot(support.T, p_pi)
         
         assert self.consistency_check(p_pi)
         
+        print("Distance from the real hull:", round(D, 5))
+        if not np.isnan(stderr):
+            print("Number of standard errors:", round(D/stderr, 5))        
+        
         return SimpleNamespace(
-            **dict(D=D, closest=closest, p_pi=p_pi, stderrs=stderrs))
+            **dict(D=D, closest=closest, p_pi=p_pi, stderr=stderr))
