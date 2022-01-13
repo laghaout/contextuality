@@ -22,10 +22,12 @@ class Ontology:
         self.ontic = self.define_ontic()
         
         # Determine the derived states (i.e., the transformed or measured 
-        # attributes that follow from the base ontic states).
+        # attributes that follow from the base ontic states and which serve as
+        # the support \hat{A}^{(R)} for the real hull).
         self.derived = self.compute_derived()
         
-        # Determine the hulls that result from the derived states.
+        # Determine the hulls, both real and unreal, that result from the 
+        # derived states.
         self.hulls = self.compute_hulls()
         
         self.validate()
@@ -41,9 +43,9 @@ class Ontology:
 
         Returns
         -------
-        ontic : np.array 
-            Array of dimension `N·K` where `N` is the number of attributes and 
-            `K` the number of such combinations.
+        ontic : pandas.DataFrame 
+            Data frame of dimension `N·K` where `N` is the number of attributes 
+            and `K` the number of such combinations.
         """    
         
         ontic = None
@@ -52,9 +54,9 @@ class Ontology:
  
     def compute_derived(self):
         """
-        Define the logical operations that (potentially) reduced space the 
-        "real of possibilities". These operations, which typically correspond 
-        to measurements, produce a set of derived states.
+        Execute the logical operations that (potentially) reduce the "realm of 
+        possibilities". These operations, which typically correspond to
+        measurements, produce a set of derived states.
 
         Returns
         -------
