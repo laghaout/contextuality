@@ -10,7 +10,11 @@ import numpy as np
 import pandas as pd
 import scipy.spatial as sp
 
-import Ontology as ont
+# Run either locally or from the Docker container.
+try:
+    import Ontology as ont
+except:
+    from . import Ontology as ont
 
 class PeresMermin(ont.Ontology):
 

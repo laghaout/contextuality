@@ -4,21 +4,15 @@
 Created on Sun Aug  1 14:42:42 2021
 
 @author: Amine Laghaout
-
-This is a follow-up on the following pre-print: 
-
-A. Dikme, N. Reichel, A. Laghaout, G. Björk, 
-Measuring the Mermin-Peres magic square using an online quantum computer
-arXiv:2009.10751 (2020)
-
-TODO
-- Add optional plotting in 2D and 3D.
-- Include the Pauli operators somewhere.
-- Double check the optimizations.
 """
 
 import numpy as np
-import PeresMermin as pm
+
+# Run either locally or from the Docker container.
+try:
+    import PeresMermin as pm
+except:
+    from . import PeresMermin as pm
 
 # %% Run the ontology.
 

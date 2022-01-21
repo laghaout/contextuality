@@ -57,6 +57,8 @@ class Ontology:
         Execute the logical operations that (potentially) reduce the "realm of 
         possibilities". These operations, which typically correspond to
         measurements, produce a set of derived states.
+        
+        NOTE: Make sure to deduplicate the columns.
 
         Returns
         -------
