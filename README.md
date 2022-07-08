@@ -33,7 +33,7 @@ It is also possible to Dockerize the code by running `dockerize.sh` to produce a
 
 ### References
 
-* Altay Dikme, Nicolas Reichel, Amine Laghaout, and Gunnar Björk, *Measuring the Mermin-Peres magic square using an online quantum computer*, [arXiv:2009.10751 (2020)](https://arxiv.org/abs/2009.10751)
+* Amine Laghaout, Altay Dikme, Nicolas Reichel, and Gunnar Björk, *A demonstration of contextuality using quantum computers*, [Eur. J. Phys. __43__ 055401 (2022)](https://doi.org/10.1088/1361-6404/ac79e0)
 
 [^reduced_space]: For example, although two bits live in the four-dimensional space {[0, 0], [0, 1], [1, 0], [1, 1]}, their product only lives in the two-dimensional space {0, 1}, whereby the first three "ontic" states map to 0 and the last maps to 1.
 
